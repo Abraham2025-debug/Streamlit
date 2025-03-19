@@ -18,7 +18,7 @@ def install_if_missing(package):
         subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 # List of required dependencies
-required_packages = ["streamlit", "librosa", "numpy", "pandas", "matplotlib"]
+required_packages = ["streamlit", "numpy", "pandas", "matplotlib"]
 
 for package in required_packages:
     install_if_missing(package)
