@@ -7,6 +7,7 @@ import numpy as np
 from PIL import Image
 from pydub import AudioSegment
 import speech_recognition as sr
+import imageio
 
 # Ensure ffmpeg is available
 subprocess.run([sys.executable, "-m", "pip", "install", "opencv-python-headless", "numpy", "Pillow", "SpeechRecognition", "pydub"], check=True)
