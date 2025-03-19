@@ -7,7 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/11sZcWPM6DSB07ruOCsv2GMHs57gpYva7
 """
 
-!pip install streamlit
+
 
 !pip install SpeechRecognition
 
