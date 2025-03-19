@@ -1,19 +1,12 @@
-import streamlit as st
 import os
-from pydub import AudioSegment
-
-# Set the path to ffmpeg if it's not in the PATH
-os.environ["PATH"] += os.pathsep + '/path/to/ffmpeg/bin'  # Update this path
-
-# Now you can proceed with audio extraction
-audio = AudioSegment.from_file("your_audio_file.mp4")
-
 import subprocess
 import sys
+import streamlit as st
+from moviepy.editor import VideoFileClip
+from pydub import AudioSegment
 
 # Ensure dependencies are installed
-# Run this part in your local environment to install dependencies first:
-# subprocess.run([sys.executable, "-m", "pip", "install", "opencv-python-headless", "numpy", "Pillow", "SpeechRecognition", "pydub"])
+subprocess.run([sys.executable, "-m", "pip", "install", "opencv-python-headless", "numpy", "Pillow", "SpeechRecognition", "moviepy", "pydub"], check=True)
 
 # Define the directory for storing annotations
 ANNOTATION_DIR = "annotations"
@@ -23,17 +16,6 @@ if not os.path.exists(ANNOTATION_DIR):
     os.makedirs(ANNOTATION_DIR)
 
 st.write(f"Annotations will be stored in: `{ANNOTATION_DIR}`")
-
-# Import necessary libraries after ensuring dependencies are installed
-try:
-    import cv2
-    import numpy as np
-    from PIL import Image
-    import speech_recognition as sr
-    from pydub import AudioSegment  # For audio extraction
-except ImportError as e:
-    st.error(f"Failed to import a required library: {e}")
-    st.stop()
 
 # Streamlit App
 st.title("Multimodal Sarcasm Annotation Tool")
@@ -51,6 +33,7 @@ if uploaded_file is not None:
 
     # Extract frames using OpenCV
     try:
+        import cv2
         cap = cv2.VideoCapture(video_path)
         frame_count = 0
         frame_list = []
@@ -73,24 +56,30 @@ if uploaded_file is not None:
     except Exception as e:
         st.error(f"Error extracting frames: {e}")
 
-    # Extract audio using Pydub (instead of MoviePy)
+    # Extract audio using MoviePy and convert to .wav
     try:
-        # Extract audio from the video using Pydub
-        video_audio = AudioSegment.from_file(video_path)
-        audio_path = "temp_audio.wav"
-        video_audio.export(audio_path, format="wav")
+        video = VideoFileClip(video_path)
+        audio_path = "temp_audio.wav"  # Path to the extracted audio file
+        video.audio.write_audiofile(audio_path)
 
-        # Perform speech recognition
-        recognizer = sr.Recognizer()
-        with sr.AudioFile(audio_path) as source:
-            audio_data = recognizer.record(source)
-            try:
-                transcript = recognizer.recognize_google(audio_data)
-                st.write("Transcription:", transcript)
-            except sr.UnknownValueError:
-                st.write("Could not understand the audio")
-            except sr.RequestError as e:
-                st.write(f"Error with speech recognition service: {e}")  # Fixed syntax error
+        # Now load the audio with pydub
+        if os.path.exists(audio_path):  # Check if the audio file exists
+            audio = AudioSegment.from_file(audio_path)
+
+            # Perform speech recognition on the extracted audio
+            import speech_recognition as sr
+            recognizer = sr.Recognizer()
+            with sr.AudioFile(audio_path) as source:
+                audio_data = recognizer.record(source)
+                try:
+                    transcript = recognizer.recognize_google(audio_data)
+                    st.write("Transcription:", transcript)
+                except sr.UnknownValueError:
+                    st.write("Could not understand the audio")
+                except sr.RequestError as e:
+                    st.write(f"Error with speech recognition service: {e}")
+        else:
+            st.write(f"Error: Audio file {audio_path} not found!")
     except Exception as e:
         st.error(f"Error processing video or audio: {e}")
 
