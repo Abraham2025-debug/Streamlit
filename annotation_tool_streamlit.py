@@ -2,16 +2,17 @@ import os
 import subprocess
 import sys
 import streamlit as st
-from moviepy.editor import VideoFileClip
+import cv2
+import numpy as np
+from PIL import Image
 from pydub import AudioSegment
+import speech_recognition as sr
 
-# Ensure dependencies are installed
-subprocess.run([sys.executable, "-m", "pip", "install", "opencv-python-headless", "numpy", "Pillow", "SpeechRecognition", "moviepy", "pydub"], check=True)
+# Ensure ffmpeg is available
+subprocess.run([sys.executable, "-m", "pip", "install", "opencv-python-headless", "numpy", "Pillow", "SpeechRecognition", "pydub"], check=True)
 
 # Define the directory for storing annotations
 ANNOTATION_DIR = "annotations"
-
-# Create the directory if it doesn't exist
 if not os.path.exists(ANNOTATION_DIR):
     os.makedirs(ANNOTATION_DIR)
 
@@ -33,7 +34,6 @@ if uploaded_file is not None:
 
     # Extract frames using OpenCV
     try:
-        import cv2
         cap = cv2.VideoCapture(video_path)
         frame_count = 0
         frame_list = []
@@ -56,18 +56,18 @@ if uploaded_file is not None:
     except Exception as e:
         st.error(f"Error extracting frames: {e}")
 
-    # Extract audio using MoviePy and convert to .wav
+    # Extract audio using ffmpeg and convert to .wav
     try:
-        video = VideoFileClip(video_path)
         audio_path = "temp_audio.wav"  # Path to the extracted audio file
-        video.audio.write_audiofile(audio_path)
+
+        # Extract audio using ffmpeg (no need for moviepy)
+        subprocess.run(["ffmpeg", "-i", video_path, "-vn", "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "2", audio_path])
 
         # Now load the audio with pydub
         if os.path.exists(audio_path):  # Check if the audio file exists
             audio = AudioSegment.from_file(audio_path)
 
             # Perform speech recognition on the extracted audio
-            import speech_recognition as sr
             recognizer = sr.Recognizer()
             with sr.AudioFile(audio_path) as source:
                 audio_data = recognizer.record(source)
