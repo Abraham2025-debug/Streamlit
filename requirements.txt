@@ -6,5 +6,6 @@ pandas
 matplotlib
 speechrecognition
 opencv-python
+opencv-python-headless
 moviepy
 imageio[ffmpeg]
