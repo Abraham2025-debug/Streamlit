@@ -183,5 +183,5 @@ if annotations:
 else:
     st.write("No annotations yet.")
 
-pip freeze > requirements.txt
+
 
