@@ -4,8 +4,8 @@ librosa
 numpy
 pandas
 matplotlib
-speechrecognition
-opencv-python
+SpeechRecognition
 opencv-python-headless
 moviepy
 imageio[ffmpeg]
+Pillow
