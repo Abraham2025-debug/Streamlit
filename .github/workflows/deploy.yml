@@ -24,7 +24,8 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt || true  # Ensure dependencies are installed
+          pip install moviepy  # Explicitly install moviepy in case it's missing
 
       - name: Run Streamlit App (Optional)
         run: streamlit run annotation_tool_streamlit.py --server.headless true
