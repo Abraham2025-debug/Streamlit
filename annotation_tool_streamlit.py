@@ -11,14 +11,17 @@ import subprocess
 import sys
 
 def install_if_missing(package):
-    """Automatically install a package if it's missing."""
     try:
         __import__(package)
     except ImportError:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+        print(f"Installing {package}...")
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to install {package}. Error: {e}")
+            sys.exit(1)  # Stop execution if installation fails
 
-# List of required dependencies
-required_packages = ["streamlit", "numpy", "pandas", "matplotlib"]
+required_packages = ["streamlit", "librosa", "numpy", "pandas", "matplotlib", "SpeechRecognition"]
 
 for package in required_packages:
     install_if_missing(package)
