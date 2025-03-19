@@ -9,7 +9,7 @@ Original file is located at
 
 
 
-!pip install SpeechRecognition
+pip install SpeechRecognition
 
 # Commented out IPython magic to ensure Python compatibility.
 # %%writefile app.py
