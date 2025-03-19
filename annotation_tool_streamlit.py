@@ -20,7 +20,7 @@ try:
     import cv2
     import numpy as np
     from PIL import Image
-    from moviepy import editor as mp
+    from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip  # Corrected import
     import speech_recognition as sr
 except ImportError as e:
     st.error(f"Failed to import a required library: {e}")
@@ -66,7 +66,7 @@ if uploaded_file is not None:
 
     # Extract audio using MoviePy
     try:
-        video = mp.VideoFileClip(video_path)
+        video = VideoFileClip(video_path)  # Use VideoFileClip directly
         audio_path = "temp_audio.wav"
         video.audio.write_audiofile(audio_path)
 
@@ -80,8 +80,4 @@ if uploaded_file is not None:
             except sr.UnknownValueError:
                 st.write("Could not understand the audio")
             except sr.RequestError as e:
-                st.write(f"Error with speech recognition service: {e}")
-    except Exception as e:
-        st.error(f"Error processing video or audio: {e}")
-
-st.write("Annotation tool is ready!")
+                st.write(f"Error with speech recognition service
