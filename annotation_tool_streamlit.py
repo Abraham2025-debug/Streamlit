@@ -7,7 +7,11 @@ Original file is located at
     https://colab.research.google.com/drive/11sZcWPM6DSB07ruOCsv2GMHs57gpYva7
 """
 
+import subprocess
+import sys
 
+# Install moviepy if not already installed
+subprocess.run([sys.executable, "-m", "pip", "install", "moviepy"], check=True)
 
 
 # Now, import all dependencies
