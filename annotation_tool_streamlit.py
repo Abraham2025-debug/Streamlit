@@ -7,19 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/11sZcWPM6DSB07ruOCsv2GMHs57gpYva7
 """
 
-import subprocess
-import sys
-
-# Function to install missing packages
-def install_if_missing(package):
-    try:
-        __import__(package)
-    except ImportError:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "--user", package])
-
-# Install required packages
-for package in ["streamlit", "librosa", "numpy", "pandas", "matplotlib", "speechrecognition"]:
-    install_if_missing(package)
 
 
 
