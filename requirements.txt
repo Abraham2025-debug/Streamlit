@@ -1,0 +1,8 @@
+streamlit
+librosa
+numpy
+pandas
+matplotlib
+speechrecognition
+moviepy
+opencv-python-headless
