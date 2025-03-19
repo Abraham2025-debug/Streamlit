@@ -72,4 +72,18 @@ if uploaded_file is not None:
         audio_path = "temp_audio.wav"
         video_audio.export(audio_path, format="wav")
 
-        # Perform speech re
+        # Perform speech recognition
+        recognizer = sr.Recognizer()
+        with sr.AudioFile(audio_path) as source:
+            audio_data = recognizer.record(source)
+            try:
+                transcript = recognizer.recognize_google(audio_data)
+                st.write("Transcription:", transcript)
+            except sr.UnknownValueError:
+                st.write("Could not understand the audio")
+            except sr.RequestError as e:
+                st.write(f"Error with speech recognition service: {e}")  # Fixed syntax error
+    except Exception as e:
+        st.error(f"Error processing video or audio: {e}")
+
+st.write("Annotation tool is ready!")
