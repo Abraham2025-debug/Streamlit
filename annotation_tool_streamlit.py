@@ -3,8 +3,8 @@ import os
 import subprocess
 import sys
 
-# Ensure moviepy is installed
-subprocess.run([sys.executable, "-m", "pip", "install", "moviepy"], check=True)
+# Ensure moviepy and other dependencies are installed
+subprocess.run([sys.executable, "-m", "pip", "install", "moviepy", "opencv-python", "numpy", "Pillow", "SpeechRecognition"], check=True)
 
 # Define the directory for storing annotations
 ANNOTATION_DIR = "annotations"
@@ -34,7 +34,7 @@ if uploaded_file is not None:
     # Save uploaded file
     video_path = os.path.join("temp_video.mp4")
     with open(video_path, "wb") as f:
-        f.write(uploaded_file.read())
+        f.write(uploaded_file.getbuffer())  # Use getbuffer() for better performance
 
     # Extract frames using OpenCV
     cap = cv2.VideoCapture(video_path)
@@ -58,20 +58,23 @@ if uploaded_file is not None:
         st.image(image, caption="First Frame Extracted")
 
     # Extract audio using MoviePy
-    video = mp.VideoFileClip(video_path)
-    audio_path = "temp_audio.wav"
-    video.audio.write_audiofile(audio_path)
+    try:
+        video = mp.VideoFileClip(video_path)
+        audio_path = "temp_audio.wav"
+        video.audio.write_audiofile(audio_path)
 
-    # Perform speech recognition
-    recognizer = sr.Recognizer()
-    with sr.AudioFile(audio_path) as source:
-        audio_data = recognizer.record(source)
-        try:
-            transcript = recognizer.recognize_google(audio_data)
-            st.write("Transcription:", transcript)
-        except sr.UnknownValueError:
-            st.write("Could not understand the audio")
-        except sr.RequestError:
-            st.write("Error with speech recognition service")
+        # Perform speech recognition
+        recognizer = sr.Recognizer()
+        with sr.AudioFile(audio_path) as source:
+            audio_data = recognizer.record(source)
+            try:
+                transcript = recognizer.recognize_google(audio_data)
+                st.write("Transcription:", transcript)
+            except sr.UnknownValueError:
+                st.write("Could not understand the audio")
+            except sr.RequestError as e:
+                st.write(f"Error with speech recognition service: {e}")
+    except Exception as e:
+        st.write(f"Error processing video or audio: {e}")
 
 st.write("Annotation tool is ready!")
