@@ -19,17 +19,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.9"  # Adjust based on your local version
 
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt || true
-          pip install moviepy
-          pip freeze  # Check installed packages
+          pip install moviepy  # Manually install moviepy
 
       - name: Debug MoviePy Installation
-        run: python -c "import moviepy.editor as mp; print('MoviePy is installed successfully!')"
+        run: |
+          python -c "import moviepy.editor as mp; print('✅ MoviePy installed successfully!')"
 
       - name: Run Streamlit App (Optional)
         run: streamlit run annotation_tool_streamlit.py --server.headless true
