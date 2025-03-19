@@ -1,5 +1,13 @@
 import streamlit as st
 import os
+from pydub import AudioSegment
+
+# Set the path to ffmpeg if it's not in the PATH
+os.environ["PATH"] += os.pathsep + '/path/to/ffmpeg/bin'  # Update this path
+
+# Now you can proceed with audio extraction
+audio = AudioSegment.from_file("your_audio_file.mp4")
+
 import subprocess
 import sys
 
