@@ -19,7 +19,7 @@ st.write(f"Annotations will be stored in: `{ANNOTATION_DIR}`")
 import cv2
 import numpy as np
 from PIL import Image
-import moviepy.editor as mp
+from moviepy import editor as mp
 import speech_recognition as sr
 
 # Streamlit App
