@@ -1,4 +1,4 @@
-
+pydub
 streamlit
 librosa
 numpy
