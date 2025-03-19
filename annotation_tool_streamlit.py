@@ -10,20 +10,15 @@ Original file is located at
 import subprocess
 import sys
 
+# Function to install missing packages
 def install_if_missing(package):
     try:
         __import__(package)
     except ImportError:
-        print(f"Installing {package}...")
-        try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-        except subprocess.CalledProcessError as e:
-            print(f"Failed to install {package}. Error: {e}")
-            sys.exit(1)  # Stop execution if installation fails
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "--user", package])
 
-required_packages = ["streamlit", "librosa", "numpy", "pandas", "matplotlib", "SpeechRecognition"]
-
-for package in required_packages:
+# Install required packages
+for package in ["streamlit", "librosa", "numpy", "pandas", "matplotlib", "speechrecognition"]:
     install_if_missing(package)
 
 
