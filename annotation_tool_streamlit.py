@@ -7,7 +7,30 @@ Original file is located at
     https://colab.research.google.com/drive/11sZcWPM6DSB07ruOCsv2GMHs57gpYva7
 """
 
+import subprocess
+import sys
 
+def install_if_missing(package):
+    """Automatically install a package if it's missing."""
+    try:
+        __import__(package)
+    except ImportError:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+# List of required dependencies
+required_packages = ["streamlit", "librosa", "numpy", "pandas", "matplotlib"]
+
+for package in required_packages:
+    install_if_missing(package)
+
+
+
+# Now, import all dependencies
+import streamlit as st
+import librosa
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 
