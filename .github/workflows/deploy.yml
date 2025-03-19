@@ -3,10 +3,10 @@ name: Deploy Streamlit App
 on:
   push:
     branches:
-      - main  # Runs when you push to the main branch
+      - main
   pull_request:
     branches:
-      - main  # Runs on pull requests to main
+      - main
 
 jobs:
   deploy:
@@ -19,13 +19,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"  # Adjust to match your project's Python version
+          python-version: "3.9"
 
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt || true  # Ensure dependencies are installed
-          pip install moviepy  # Explicitly install moviepy in case it's missing
+          pip install -r requirements.txt || true
+          pip install moviepy
+          pip freeze  # Check installed packages
+
+      - name: Debug MoviePy Installation
+        run: python -c "import moviepy.editor as mp; print('MoviePy is installed successfully!')"
 
       - name: Run Streamlit App (Optional)
         run: streamlit run annotation_tool_streamlit.py --server.headless true
