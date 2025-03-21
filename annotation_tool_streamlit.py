@@ -1,88 +1,64 @@
-import os
-import subprocess
-import sys
 import streamlit as st
 import cv2
+import librosa
 import numpy as np
-from PIL import Image
-from pydub import AudioSegment
-import speech_recognition as sr
-import imageio
-imageio.plugins.ffmpeg.download()
+import matplotlib.pyplot as plt
+import os
+import json
+from pathlib import Path
+from streamlit_player import st_player
 
-# Ensure ffmpeg is available
-subprocess.run([sys.executable, "-m", "pip", "install", "opencv-python-headless", "numpy", "Pillow", "SpeechRecognition", "pydub"], check=True)
-
-# Define the directory for storing annotations
-ANNOTATION_DIR = "annotations"
-if not os.path.exists(ANNOTATION_DIR):
-    os.makedirs(ANNOTATION_DIR)
-
-st.write(f"Annotations will be stored in: `{ANNOTATION_DIR}`")
-
-# Streamlit App
+# Initialize app
 st.title("Multimodal Sarcasm Annotation Tool")
 
-# Upload video file
-uploaded_file = st.file_uploader("Upload a video file", type=["mp4", "avi", "mov"])
+# Sidebar for uploads
+st.sidebar.header("Upload Files")
+video_file = st.sidebar.file_uploader("Upload Video", type=["mp4", "avi", "mov"])
+audio_file = st.sidebar.file_uploader("Upload Audio", type=["wav", "mp3"])
+transcript_file = st.sidebar.file_uploader("Upload Transcript", type=["txt"])
+frame_folder = st.sidebar.file_uploader("Upload Extracted Frames (Folder as .zip)", type=["zip"])
 
-if uploaded_file is not None:
-    st.video(uploaded_file)
+if video_file and audio_file and transcript_file and frame_folder:
+    # Video playback
+    st.subheader("Video Preview:")
+    st.video(video_file)
 
-    # Save uploaded file
-    video_path = os.path.join("temp_video.mp4")
-    with open(video_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())  # Use getbuffer() for better performance
+    # Load transcript
+    transcript = transcript_file.read().decode("utf-8").splitlines()
+    st.subheader("Transcript:")
+    st.text("\n".join(transcript))
 
-    # Extract frames using OpenCV
-    try:
-        cap = cv2.VideoCapture(video_path)
-        frame_count = 0
-        frame_list = []
+    # Load audio and visualize waveform
+    y, sr = librosa.load(audio_file)
+    st.subheader("Audio Waveform:")
+    fig, ax = plt.subplots()
+    librosa.display.waveshow(y, sr=sr, ax=ax)
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Amplitude")
+    st.pyplot(fig)
 
-        while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret:
-                break
-            frame_list.append(frame)
-            frame_count += 1
+    # Extract frames from the zip folder
+    import zipfile
+    with zipfile.ZipFile(frame_folder, 'r') as z:
+        z.extractall("frames/")
 
-        cap.release()
-        st.write(f"Total Frames Extracted: {frame_count}")
+    frame_files = sorted(list(Path("frames").glob("*.png")))
+    st.subheader("Extracted Frames:")
 
-        # Display first frame as an example
-        if frame_list:
-            frame_rgb = cv2.cvtColor(frame_list[0], cv2.COLOR_BGR2RGB)
-            image = Image.fromarray(frame_rgb)
-            st.image(image, caption="First Frame Extracted")
-    except Exception as e:
-        st.error(f"Error extracting frames: {e}")
+    # Display frames with timestamp selection
+    frame_annotations = {}
+    for i, frame in enumerate(frame_files):
+        st.image(str(frame), caption=f"Frame {i + 1}")
+        sarcasm_label = st.selectbox(
+            f"Annotate Frame {i + 1}", ["Select Label", "Sarcastic", "Non-Sarcastic"], key=f"frame_{i}")
+        frame_annotations[str(frame)] = sarcasm_label
 
-    # Extract audio using ffmpeg and convert to .wav
-    try:
-        audio_path = "temp_audio.wav"  # Path to the extracted audio file
-
-        # Extract audio using ffmpeg (no need for moviepy)
-        subprocess.run(["ffmpeg", "-i", video_path, "-vn", "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "2", audio_path])
-
-        # Now load the audio with pydub
-        if os.path.exists(audio_path):  # Check if the audio file exists
-            audio = AudioSegment.from_file(audio_path)
-
-            # Perform speech recognition on the extracted audio
-            recognizer = sr.Recognizer()
-            with sr.AudioFile(audio_path) as source:
-                audio_data = recognizer.record(source)
-                try:
-                    transcript = recognizer.recognize_google(audio_data)
-                    st.write("Transcription:", transcript)
-                except sr.UnknownValueError:
-                    st.write("Could not understand the audio")
-                except sr.RequestError as e:
-                    st.write(f"Error with speech recognition service: {e}")
-        else:
-            st.write(f"Error: Audio file {audio_path} not found!")
-    except Exception as e:
-        st.error(f"Error processing video or audio: {e}")
-
-st.write("Annotation tool is ready!")
+    # Save annotations
+    if st.button("Save Annotations"):
+        annotations = {
+            "transcript": transcript,
+            "frame_annotations": frame_annotations
+        }
+        with open("annotations.json", "w") as f:
+            json.dump(annotations, f, indent=4)
+        st.success("Annotations saved to annotations.json!")
