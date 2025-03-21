@@ -63,6 +63,3 @@ if video_file and audio_file and transcript_file and frame_folder:
             json.dump(annotations, f, indent=4)
         st.success("Annotations saved to annotations.json!")
 
-# Create requirements.txt
-with open("requirements.txt", "w") as req:
-    req.write("streamlit\ncv2\nlibrosa\nnumpy\nmatplotlib\nstreamlit-player\nzipfile36\n")
