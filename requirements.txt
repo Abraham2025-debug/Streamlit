@@ -1,12 +1,8 @@
-pydub
 streamlit
+cv2
 librosa
 numpy
-pandas
 matplotlib
-SpeechRecognition
-opencv-python-headless
-moviepy>=2.1.2
+streamlit-player
+zipfile36
 imageio[ffmpeg]
-Pillow
-ffmpeg
