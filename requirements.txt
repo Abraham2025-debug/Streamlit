@@ -1,5 +1,5 @@
 streamlit
-cv2
+opencv-python-headless  # Instead of cv2 for headless environments
 librosa
 numpy
 matplotlib
